@@ -82,7 +82,7 @@ function getScreenMode() {
   const h = window.innerHeight;
 if (isMobile) {
   const portrait = window.innerHeight > window.innerWidth;
-  headerTextMesh.scale.setScalar(portrait ? 0.55 : 0.7);
+  headerTextMesh.scale.setScalar(portrait ? 0.50 : 0.5);
 }
 if (isMobile) {
   headerTextMesh.position.y -= portrait ? 12 : 6;
@@ -239,7 +239,7 @@ const MOBILE_SCALE = IS_MOBILE ? 0.4 : 1.0;
             const spot1 = new THREE.SpotLight(0xffdd55, 5000); spot1.position.set(50, 100, 50); scene.add(spot1);
             
             createBgMatrix(); createTextParticleSystem();if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-  textParticleSystem.scale.set(0.65, 0.65, 0.65);
+  textParticleSystem.scale.set(0.40, 0.40, 0.40);
 }
 ; initFireworkCanvas();
 
