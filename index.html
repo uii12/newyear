@@ -77,6 +77,23 @@
         // giảm lag trên mobile
 const IS_MOBILE = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
+function getScreenMode() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+if (isMobile) {
+  const portrait = window.innerHeight > window.innerWidth;
+  headerTextMesh.scale.setScalar(portrait ? 0.55 : 0.7);
+}
+if (isMobile) {
+  headerTextMesh.position.y -= portrait ? 12 : 6;
+}
+
+  if (!IS_MOBILE) return 'DESKTOP';
+  if (h > w) return 'MOBILE_PORTRAIT';
+  return 'MOBILE_LANDSCAPE';
+}
+
+
 const MOBILE_SCALE = IS_MOBILE ? 0.4 : 1.0;
         // ==========================================
         // CẤU HÌNH ẢNH .PNG
@@ -101,7 +118,8 @@ const MOBILE_SCALE = IS_MOBILE ? 0.4 : 1.0;
         let targetRotY = 0, currentRotY = 0;
         const MAX_ANGLE = 80 * (Math.PI / 180);
         const CAM_DIST_P1 = 250;
-        const P1_CONFIG = { bgCount: 900, textParticleCount: IS_MOBILE ? 20000 : 80000,textParticleSize: 0.35, textSize: 32, numberSize: 85, depthThickness: 8, textColorStart: '#ff9900', textColorEnd: '#ffffaa', explosionPower: 180.0, gatherSpeed: 0.05, areaWidth: 300, areaHeight: 200, fallSpeedMin: 4 };
+        const P1_CONFIG = { bgCount: 900, textParticleCount: IS_MOBILE ? 20000 : 80000,textParticleSize: 0.35, textSize: 32,
+             numberSize: 85, depthThickness: 8, textColorStart: '#ff9900', textColorEnd: '#ffffaa', explosionPower: 180.0, gatherSpeed: 0.05, areaWidth: 300, areaHeight: 200, fallSpeedMin: 4 };
         const P1_MATS = { gold: new THREE.MeshPhysicalMaterial({ color: 0xffd966, metalness: 0.9, roughness: 0.2, emissive: 0xffaa00, emissiveIntensity: 0.8 }), paperRed: new THREE.MeshStandardMaterial({ color: 0xff3333, roughness: 0.6, emissive: 0xaa0000, emissiveIntensity: 0.2 }), flower: new THREE.MeshStandardMaterial({ color: 0xffff00, roughness: 0.3, emissive: 0xffff00, emissiveIntensity: 1.2 }), center: new THREE.MeshStandardMaterial({ color: 0xff0000 }) };
         let bgParticles = [], textParticleSystem, textGeometry, font;
         const currentPositions = new Float32Array(P1_CONFIG.textParticleCount * 3);
@@ -220,7 +238,10 @@ const MOBILE_SCALE = IS_MOBILE ? 0.4 : 1.0;
             const ambient = new THREE.AmbientLight(0xffffff, 2.0); scene.add(ambient);
             const spot1 = new THREE.SpotLight(0xffdd55, 5000); spot1.position.set(50, 100, 50); scene.add(spot1);
             
-            createBgMatrix(); createTextParticleSystem(); initFireworkCanvas();
+            createBgMatrix(); createTextParticleSystem();if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+  textParticleSystem.scale.set(0.65, 0.65, 0.65);
+}
+; initFireworkCanvas();
 
             const renderScene = new RenderPass(scene, camera);
             bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
@@ -513,6 +534,13 @@ onFrame: async () => {
     lastHandTime = now;
   }
 }
+window.addEventListener('resize', () => {
+  if (!headerTextMesh) return;
+
+  const portrait = window.innerHeight > window.innerWidth;
+  headerTextMesh.scale.setScalar(portrait ? 0.55 : 0.7);
+  headerTextMesh.position.y = portrait ? 28 : 36;
+});
 
     </script>
 </body>
