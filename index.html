@@ -56,6 +56,8 @@
         });
     }, { once: true }); // Sự kiện chỉ xảy ra một lần
 </script>
+   
+
     <div id="loading">ĐANG TẢI... VUI LÒNG CHO PHÉP CAMERA</div>
     <div id="cam-preview"><video class="input_video"></video></div>
 
@@ -72,13 +74,16 @@
         import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
         import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
         import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
+        // giảm lag trên mobile
+const IS_MOBILE = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
+const MOBILE_SCALE = IS_MOBILE ? 0.4 : 1.0;
         // ==========================================
         // CẤU HÌNH ẢNH .PNG
         // ==========================================
         const IMAGE_CONFIG = {
             folder: './images/', 
-            files: ['1.png', '2.png', '3.jpg', '4.jpg', '5.jpg','7.jpg','8.jpg','9.png'] 
+            files: ['1.png', '2.png', '3.jpg', '4.jpg', '5.jpg','6.gif','7.gif'] 
         };
 
         // --- GLOBAL VARIABLES ---
@@ -96,7 +101,7 @@
         let targetRotY = 0, currentRotY = 0;
         const MAX_ANGLE = 80 * (Math.PI / 180);
         const CAM_DIST_P1 = 250;
-        const P1_CONFIG = { bgCount: 900, textParticleCount: 80000, textParticleSize: 0.35, textSize: 32, numberSize: 85, depthThickness: 8, textColorStart: '#ff9900', textColorEnd: '#ffffaa', explosionPower: 180.0, gatherSpeed: 0.05, areaWidth: 300, areaHeight: 200, fallSpeedMin: 4 };
+        const P1_CONFIG = { bgCount: 900, textParticleCount: IS_MOBILE ? 20000 : 80000,textParticleSize: 0.35, textSize: 32, numberSize: 85, depthThickness: 8, textColorStart: '#ff9900', textColorEnd: '#ffffaa', explosionPower: 180.0, gatherSpeed: 0.05, areaWidth: 300, areaHeight: 200, fallSpeedMin: 4 };
         const P1_MATS = { gold: new THREE.MeshPhysicalMaterial({ color: 0xffd966, metalness: 0.9, roughness: 0.2, emissive: 0xffaa00, emissiveIntensity: 0.8 }), paperRed: new THREE.MeshStandardMaterial({ color: 0xff3333, roughness: 0.6, emissive: 0xaa0000, emissiveIntensity: 0.2 }), flower: new THREE.MeshStandardMaterial({ color: 0xffff00, roughness: 0.3, emissive: 0xffff00, emissiveIntensity: 1.2 }), center: new THREE.MeshStandardMaterial({ color: 0xff0000 }) };
         let bgParticles = [], textParticleSystem, textGeometry, font;
         const currentPositions = new Float32Array(P1_CONFIG.textParticleCount * 3);
@@ -105,7 +110,8 @@
 
         // --- CONFIG PHASE 2 (INGOT) ---
         const INGOT_CONFIG = {
-            particles: { count: 1800, dustCount: 800 },
+            particles: {  count: IS_MOBILE ? 600 : 1800,
+  dustCount: IS_MOBILE ? 200 : 800 },
             camera: { z: 85, y: 10 },
             size: { scaleX: 55, scaleY: 25, scaleZ: 28 }
         };
@@ -202,7 +208,7 @@
             
             renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance", alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.setPixelRatioIS_MOBILE ? 1 : Math.min(window.devicePixelRatio, 2);
             renderer.domElement.id = 'three-canvas';
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
             renderer.toneMappingExposure = 1.0;
@@ -238,20 +244,20 @@
             const seq = ['3', '2', '1']; 
             for (let n of seq) { 
                 changeText(n); 
-                // Đã sửa: Tăng thời gian chờ lên 2500 (2.5 giây) để nhảy số chậm hơn
-                await smartWait(2500); 
+                // Đã sửa: Tăng thời gian chờ lên 1900 (1.9 giây) để nhảy số chậm hơn
+                await smartWait(1900); 
             }
             await smartWait(200); 
             changeText("HAPPY\nNEW YEAR"); 
-            // Đã sửa: Tăng thời gian hiện chữ Happy New Year lên 3 giây
-            await smartWait(3000); 
+            // Đã sửa: Tăng thời gian hiện chữ Happy New Year lên 1 giây
+            await smartWait(1000); 
             
             isFireworkActive = true; 
             setTimeout(() => fwFireworks.push(new Firework(fwWidth*0.2, fwHeight, fwWidth*0.2, fwHeight*0.3)), 0);
             setTimeout(() => fwFireworks.push(new Firework(fwWidth*0.8, fwHeight, fwWidth*0.8, fwHeight*0.3)), 1000);
             
             await smartWait(2000); 
-            changeText("nam moi an lanh"); 
+            changeText("nam moi an lanh "); 
             canSwitchToIngot = true;
             console.log("Sẵn sàng chuyển Thỏi Vàng");
         }
@@ -324,7 +330,7 @@
 
             } else {
                 // --- PHASE 2 ANIMATION ---
-                let targetBloom = 1.5; let targetEnv = 1.0;
+                let targetBloom = 0.2; let targetEnv = 1.0;
                 let targetHeaderOpacity = 1.0; 
 
                 // LOGIC ẨN HIỆN CHỮ
@@ -417,6 +423,8 @@
         }
 
         function cropImageToSquare(image) {
+          
+
             const size = Math.min(image.width, image.height);
             const c = document.createElement('canvas'); c.width = 512; c.height = 512; const ctx = c.getContext('2d');
             const sx = (image.width - size) / 2; const sy = (image.height - size) / 2;
@@ -495,7 +503,17 @@
             camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight); composer.setSize(window.innerWidth, window.innerHeight);
             if(currentPhase===1) resizeFw();
+
         }
+        let lastHandTime = 0;
+onFrame: async () => {
+  const now = performance.now();
+  if (now - lastHandTime > (IS_MOBILE ? 70 : 16)) {
+    await hands.send({ image: videoElement });
+    lastHandTime = now;
+  }
+}
+
     </script>
 </body>
 </html>
